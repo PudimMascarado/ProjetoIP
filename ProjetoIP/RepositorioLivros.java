@@ -1,11 +1,10 @@
 package ProjetoPack;
-
+import LivrosException.LNEException;
+import LivrosException.LIException;
 public interface RepositorioLivros {
       void inserir(Livro livro);
-      void remover(String titulo, int quant);
+      void remover(String titulo, int quant) throws LNEException;
       //return how much books you have;
-      int procurar(String titulo);
-      //If u have the book on library
-      boolean existe(String titulo);
-      boolean disponibilidade(String titulo);
+      int procurar(String titulo) throws LNEException;
+      void locacao(String titulo, int quant) throws LIException;
 }

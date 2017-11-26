@@ -1,5 +1,6 @@
 package ProjetoPack;
-
+import LivrosException.LNEException;
+import LivrosException.LIException;
 public class RepositorioLivroArray implements RepositorioLivros {
 
 	private int tamanho = 100;
@@ -14,72 +15,70 @@ public class RepositorioLivroArray implements RepositorioLivros {
 		for(int i = 0; i < index; i++) {
 			if(array[i].getTitulo().equals(livro.getTitulo())) {
 				if(array[i].getMagia().equals(livro.getMagia()) && array[i].getDescription().equals(livro.getDescription())) {
-				b = true;
-				arrayQ[i]+=1;
+					b = true;
+					arrayQ[i]+=1;
 				} else {
 				}
 			}
 		}
 		if(!b) {
-		if(index < 100) {
-			array[index] = livro;
-			arrayQ[index] = 1;
-			index++;
-		} else {
-			tamanho = 2*tamanho;
-			Livro[] arrayAux = new Livro[tamanho];
-			int[] arrayQAux = new int[tamanho];
-			for(int i = 0; i < index; i++) {
-				arrayAux[i] = this.array[i];
-				arrayQAux[i] = this.arrayQ[i];
+			if(index < tamanho) {
+				array[index] = livro;
+				arrayQ[index] = 1;
+				index++;
+			} else {
+				tamanho = 2*tamanho;
+				Livro[] arrayAux = new Livro[tamanho];
+				int[] arrayQAux = new int[tamanho];
+				for(int i = 0; i < index; i++) {
+					arrayAux[i] = this.array[i];
+					arrayQAux[i] = this.arrayQ[i];
+				}
+				this.array = arrayAux;
+				this.arrayQ = arrayQAux;
 			}
-			this.array = arrayAux;
-			this.arrayQ = arrayQAux;
-		}
 		}
 	}
-	public void remover(String titulo, int quant) {
-		for(int i = 0; i < index; i++) {
+	public void remover(String titulo, int quant) throws LNEException {
+		boolean achou = false;
+		for(int i = 0; i < index && !achou; i++) {
 			if(array[i].getTitulo().equals(titulo)) {
 				arrayQ[i] = arrayQ[i] - quant;
 				if(arrayQ[i] <= 0) {
-				this.array[i] = this.array[index];
-				this.array[index] = null;
-				index-=1;
+					this.array[i] = this.array[index];
+					this.array[index] = null;
+					index-=1;
+					achou = true;
 				}
 			}
 		}
-	}
-	public boolean existe(String titulo) {
-		boolean b = false;
-		for(int i = 0; i < index; i++) {
-			if(array[i].getTitulo().equals(titulo)) {
-				b = true;
-			}
+		if(!achou) {
+			throw new LNEException();
 		}
-		return b;
 	}
-	public int procurar(String titulo) {
+	public int procurar(String titulo) throws LNEException {
 		int resposta = 0;
+		boolean achou = false;
 		for(int i = 0; i < index; i++) {
 			if(array[i].getTitulo().equals(titulo)) {
 				resposta = arrayQ[i];
+				achou = true;
 			}
 		}
+		if(!achou)
+			throw new LNEException();
 		return resposta;
 	}
-	public boolean disponibilidade(String titulo) {
-		boolean b = false;
-		if(existe(titulo)) {
+	public void locacao(String titulo, int quant) throws LIException {
 		for(int i = 0; i < index; i++) {
 			if(array[i].getTitulo().equals(titulo)) {
-				if(arrayQ[i] > 0) {
-					b = true;
+				if((arrayQ[i] - quant) < 0) {
+					throw new LIException(titulo, arrayQ[i]);
+				} else {
+					arrayQ[i] -= arrayQ[i] - quant;
 				}
 			}
 		}
-	}
-		return b;
 	}
 
 }

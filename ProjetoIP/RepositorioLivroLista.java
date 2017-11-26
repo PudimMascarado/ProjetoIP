@@ -1,5 +1,6 @@
 package ProjetoPack;
-
+import LivrosException.LNEException;
+import LivrosException.LIException;
 public class RepositorioLivroLista implements RepositorioLivros {
 
 	private Livro livro;
@@ -31,7 +32,8 @@ public class RepositorioLivroLista implements RepositorioLivros {
 			}
 		}
 	}
-	public void remover(String titulo, int quant) {
+	public void remover(String titulo, int quant) throws LNEException {
+		boolean achou = false;
 		if(this.proximo != null) {
 			if(this.livro.getTitulo().equals(titulo)) {
 				this.quant = this.quant - quant;
@@ -39,47 +41,42 @@ public class RepositorioLivroLista implements RepositorioLivros {
 					this.livro = this.proximo.livro;
 					this.status = this.proximo.status;
 					this.proximo = this.proximo.proximo;
+					achou = true;
 				}
 			}
 		}
-	}
-	public boolean existe(String titulo) {
-		boolean b = false;
-		if(this.proximo != null) {
-			if(this.livro.getTitulo().equals(titulo)) {
-				b = true;
-			} else {
-				this.proximo.existe(titulo);
-			}
+		if(!achou) {
+			throw new LNEException();
 		}
-		return b;
 	}
-	public int procurar(String titulo) {
+	public int procurar(String titulo) throws LNEException {
+		boolean achou = false;
 		int resposta = 0;
-		if(existe(titulo)) {
 			if(this.proximo != null) {
 				if(this.livro.equals(titulo)) {
 					resposta = this.quant;
+					achou = true;
 				} else {
 					resposta = this.proximo.procurar(titulo);
 				}
 			}
-		}
-		return resposta;
-	}
-	public boolean disponibilidade(String titulo) {
-		boolean b = false;
-		if(existe(titulo)) {
-			if(this.proximo != null) {
-				if(this.livro.getTitulo().equals(titulo)) {
-					if(this.quant > 0) {
-						b = true;
-					}
-				} else {
-					this.proximo.disponibilidade(titulo);
+			if(!achou) {
+				throw new LNEException();
+			}
+			return resposta;
+		}		
+	public void locacao(String titulo, int quant) throws LIException {
+		if(this.proximo != null) {
+			if(this.livro.getTitulo().equals(titulo)) {
+				if(this.quant < quant) {
+					throw new LIException(titulo, quant);
 				}
+				this.quant-=quant;
+			} else {
+				this.proximo.locacao(titulo, quant);
 			}
 		}
-		return b;
 	}
 }
+
+ 
